@@ -30,14 +30,14 @@ class Client:
         with open('config.json', 'wt') as jsonfile:
             json.dump(obj, jsonfile)
 
-    def set_start_configuration(self):
+        def set_start_configuration(self):
         """Setting default internet configuration"""
         with open('config.json', 'rt') as jsonfile:
             configuration = jsonfile.read()
         configuration_data = json.loads(configuration)
         ip = IPRoute()
-        index = ip.link_lookup(ifname='eth0')[0]
-        ip.addr('add', index, address=self.ip, mask=24)
+        index = ip.link_lookup(ifname='lo')[0]
+        ip.addr('add', index, address=configuration_data[0][0], mask=24)
         ip.close()
 
     def send_respond(self):
@@ -50,7 +50,7 @@ class Client:
 
 
 if __name__ == "__main__":
-    clt = Client('169.254.3.3', '169.254.3.3', '255.255.255.0', 0)
+    clt = Client('169.254.3.3', '169.254.3.1', '255.255.255.0', 0)
     clt.write_config()
     clt.set_start_configuration()
     host_name = socket.gethostname()
