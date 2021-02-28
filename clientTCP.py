@@ -36,7 +36,6 @@ class Client:
             configuration = jsonfile.read()
         configuration_data = json.loads(configuration)
         ip = IPRoute()
-        ip.link('add', ifname='eth0', kind='bridge')
         index = ip.link_lookup(ifname='eth0')[0]
         ip.addr('add', index, address=self.ip, mask=24)
         ip.close()
