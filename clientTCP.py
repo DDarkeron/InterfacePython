@@ -37,7 +37,6 @@ class Client:
         configuration_data = json.loads(configuration)
         print(configuration_data[0][0])
         ip = IPRoute()
-        ip.link('add', ifname='eth0', kind='dummy')
         index = ip.link_lookup(ifname='eth0')[0]
         ip.link('set', index=index, state='up')
         ip.addr('add', index, address=configuration_data[0][0], mask=24)
@@ -57,7 +56,6 @@ class Client:
             configuration = jsonfile.read()
         configuration_data = json.loads(configuration)
         ip = IPRoute()
-        ip.link('add', ifname='eth0', kind='dummy')
         index = ip.link_lookup(ifname='eth0')[0]
         ip.link('set', index=index, state='up')
         ip.addr('add', index, address=configuration_data[0][0], mask=24)
