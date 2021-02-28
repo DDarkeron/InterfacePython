@@ -36,8 +36,8 @@ class Client:
             configuration = jsonfile.read()
         configuration_data = json.loads(configuration)
         ip = IPRoute()
-        index = ip.link_lookup(ifname='lo')[0]
-        ip.addr('add', index, address=self.ip, mask=24)
+        index = ip.link_lookup(ifname='eth0')[0]
+        ip.addr('add', index, address=configuration_data[0][0], mask=24)
         ip.close()
 
     def send_respond(self):
@@ -84,12 +84,8 @@ if __name__ == "__main__":
     clt = Client('169.254.3.3', '169.254.3.3', '255.255.255.0', 0)
     clt.write_config()
     clt.set_start_configuration()
-    host_name = socket.gethostname()
-    host_ip = socket.gethostbyname(host_name)
     clt.send_respond()
     clt.set_new_configuration()
-    print("Hostname :  ", host_name)
-    print("IP : ", host_ip)
     while True:
         clt.check_update()
         time.sleep(6)
