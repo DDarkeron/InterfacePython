@@ -1,8 +1,8 @@
 import json
 import ipaddress
 import time
-from pyroute2 import IPRoute
-import socket, struct, fcntl
+from pyroute2 import IPDB
+import socket
 class Client:
     """
     This class represents device that is manipulated by main machine
@@ -31,12 +31,12 @@ class Client:
     def set_start_configuration(self):
         """Setting default internet configuration"""
         with open('config.json', 'rt') as jsonfile:
-            configuration = json.read()
+            configuration = jsonfile.read()
         configuration_data = json.loads(configuration)
-        ip = IPRoute()
-        index = ip.link_lookup(ifname='em1')[0]
-        ip.addr('add', index, address=self.ip, mask=24)
-        ip.close()
+        ip = IPDB()
+        with ip.interfaces.em1 as em1:
+            em1.add_ip(self.ip)
+        ip.release()
 
     def send_respond(self):
         """Sending respond to the server to get new address"""
@@ -52,6 +52,6 @@ if __name__ == "__main__":
     clt.write_config()
     clt.set_start_configuration()
     while True:
-        #break
+        break
         clt.send_respond()
         clt.set_new_configuration()
