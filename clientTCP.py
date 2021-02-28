@@ -37,7 +37,7 @@ class Client:
         configuration_data = json.loads(configuration)
         ip = IPRoute()
         index = ip.link_lookup(ifname='lo')[0]
-        ip.addr('add', index, address=configuration_data[0][0], mask=24)
+        ip.addr('add', index, address=self.ip, mask=24)
         ip.close()
 
     def send_respond(self):
