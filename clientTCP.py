@@ -43,10 +43,41 @@ class Client:
     def send_respond(self):
         """Sending respond to the server to get new address"""
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-            sock.connect(('192.168.120.3', 9090))
+            sock.connect(('192.168.120.5', 9090))
+            data = sock.recv(1024)
+        with open('new_config.json','wt') as jsonfile:
+            json.dump(data, jsonfile)
 
     def set_new_configuration(self):
         """Setting new configuration given by the server """
+        with open('new_config.json', 'rt') as jsonfile:
+            configuration = jsonfile.read()
+        configuration_data = json.loads(configuration)
+        ip = IPRoute()
+        index = ip.link_lookup(ifname='eth0')[0]
+        ip.addr('add', index, address=configuration_data[0][0], mask=24)
+        ip.close()
+
+    def check_update(self):
+        """Waits for checking to confirm that everything is alright """
+        with open('new_config.json', 'rt') as jsonfile:
+            configuration = jsonfile.read()
+        configuration_data = json.loads(configuration)
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            try:
+                sock.settimeout(2)
+                sock.bind(('', 8080))
+                sock.listen(1)
+                conn, addr = sock.accept()
+            except socket.timeout:
+                return False
+            sock.settimeout(None)
+            with conn:
+                conn.send(configuration)
+                data = conn.recv(1024)
+            with open('new_config.json', 'wt') as jsonfile:
+                json.dump(data, jsonfile)
+            self.set_new_configuration()
 
 
 if __name__ == "__main__":
@@ -55,9 +86,10 @@ if __name__ == "__main__":
     clt.set_start_configuration()
     host_name = socket.gethostname()
     host_ip = socket.gethostbyname(host_name)
+    clt.send_respond()
+    clt.set_new_configuration()
     print("Hostname :  ", host_name)
     print("IP : ", host_ip)
     while True:
-        break
-        clt.send_respond()
-        clt.set_new_configuration()
+        clt.check_update()
+        time.sleep(6)

@@ -49,7 +49,7 @@ class Server:
 
     def check_update(self, my_dict, size, my_list):
         """Checking if file has been changed or device has been removed"""
-        port = '8080'
+        port = 8080
         removed_devices = []
         if type(my_dict) is list:
             for i in range(0, size):
@@ -68,6 +68,10 @@ class Server:
                         if client_device_data['time'] is not my_dict[i]['time']:
                             with sock:
                                 sock.send(str(my_dict))
+                        else:
+                            with sock:
+                                sock.send(str(client_device_data))
+
                     except socket.timeout:
                         removed_devices.update(i)
                         continue
